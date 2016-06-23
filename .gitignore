@@ -1,0 +1,8 @@
+.DS_Store
+
+test
+node_modules
+bower_components
+
+secrets.js
+error.log
