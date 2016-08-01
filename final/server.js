@@ -12,6 +12,21 @@ app.use(express.static(path.join(__dirname, "public")));
 io.on('connection', function(socket) {
   console.log('new connection made');
 
+  // Join private room
+  socket.on('join-private', function(data) {
+    socket.join('private');
+    console.log(data.nickname + ' joined private');
+  });
+
+  socket.on('private-chat', function(data) {
+    socket.broadcast.to('private').emit('show-message', data.message);
+  });
+
+  // Show all users when first logged on
+  socket.on('get-users', function(data) {
+    socket.emit('all-users', users);
+  });
+
   // When new socket joins
   socket.on('join', function(data) {
     socket.nickname = data.nickname;
@@ -24,15 +39,17 @@ io.on('connection', function(socket) {
     io.emit('all-users', users);
   });
 
+  // Send a message
   socket.on('send-message', function(data) {
-    socket.broadcast.emit('message-received', data);
+    // socket.broadcast.emit('message-received', data);
+    io.emit('message-received', data);
   });
 
+  // Send a 'like' to the user of your choice
   socket.on('send-like', function(data) {
     console.log(data);
     console.log(data.like);
     console.log(data.from);
-    // socket.broadcast.emit('user-liked', data);
     socket.broadcast.to(data.like).emit('user-liked', data);
   });
 
